@@ -6,7 +6,7 @@ class database:
         self.user = user
         self.password = password
         self.database = database
-        self.connection = None
+        self.globalconnection = None
 
     def get_connection(self):
         if not self.connection or self.connection.is_connected() == False:
@@ -29,3 +29,22 @@ class database:
                 print("Соединение с базой данных MySQL закрыто.")
             except mysql.connector.Error as error:
                 print(f"Ошибка при закрытии соединения: {error}")
+
+
+class check_database:
+    def __init__(self, host, user, password, database):
+        super().__init__(host, user, password, database)
+
+    def get_connection(self):
+        if not self.connection or self.connection.is_connected() == False:
+            try:
+                self.connection = mysql.connector.connect(
+                    host=self.host,
+                    user=self.user,
+                    password=self.password,
+                    database=self.database
+                )
+                print("Подключение к базе данных MySQL установлено успешно.")
+            except mysql.connector.Error as error:
+                print(f"Ошибка подключения к базе данных MySQL: {error}")
+        return self.connection
