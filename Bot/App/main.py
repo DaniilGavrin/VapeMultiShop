@@ -1,49 +1,72 @@
 import asyncio
 from aiogram import Bot, Dispatcher, types, F
-from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.filters import CommandStart
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from config import BOT_TOKEN
 from msg import msgbot
 
 is_catalog = 0
 is_profile = 0
+is_accept = 0
+is_cart = 0
 
-# Создаем экземпляр диспетчера
+# Создаем экземпляр диспетчераp
 dp = Dispatcher()
 
 # Обработчик команды /start
 @dp.message(CommandStart())
 async def start_command(message: types.Message):
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(
-        text="Каталог",
-        callback_data="catalog")
-    )
-    builder.add(types.InlineKeyboardButton(
-        text="Мой профиль",
-        callback_data="profile")
-    )
-    await message.answer(msgbot.start_message(), reply_markup=builder.is_markup())
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="🔞 Мне есть 18 лет", callback_data="accept_user")]])
+    
+    await message.answer(msgbot.start_message(), reply_markup=keyboard)
 
-@dp.message(Command("r"))
-async def stop_command(message: types.Message):
-    await message.answer("stop")
 
-# TODO: Создать логику каталога
-@dp.callback_query(F.data == "catalog")
-async def catalog(message: types.Message):
-    if is_catalog == 0:
-        await message.answer("Каталог ещё не создан и не существует или админ даун забыл тест убрать")
+@dp.message(Command("menu"))
+async def send(message: types.Message):
+    # Создание клавиатуры с двумя кнопками
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Профиль", callback_data="profile")],
+        [InlineKeyboardButton(text="Каталог", web_app=WebAppInfo(url="https://bytewizard.ru/"))],
+        [InlineKeyboardButton(text="Корзина", callback_data="cart")]
+    ])
 
+    # Отправка сообщения с клавиатурой
+    await message.answer("Выберите опцию:", reply_markup=keyboard)
+    
+@dp.callback_query(F.data == "cart")
+async def cart(message: types.Message):
+    if is_cart == 0:
+        await message.answer("Корзина ещё не создана и не существует или админ даун забыл тест убрать")
+        return
+
+# TODO: Сделать логику профиля
 @dp.callback_query(F.data == "profile")
-async def catalog(message: types.Message):
+async def profile(callback_query: types.CallbackQuery):
+    
     if is_profile == 0:
-        await message.answer("Профиль ещё не создан и не существует или админ даун забыл тест убрать")
+        await callback_query.message.answer("Профиль ещё не создан и не существует или админ даун забыл тест убрать")
+
+    user_id = callback_query.from_user.id
+    print(user_id)
+    # TODO: Отправить информацию о профиле
+    #get_profile()
+
+@dp.callback_query(F.data == "accept_user")
+async def access_user(callback_query: types.CallbackQuery):
+    # Проверка, если функция не готова
+    if is_accept == 0:
+        await callback_query.answer("Функция не готова!")
+        return
+
+    # Получение user_id и username
+    user_id = callback_query.from_user.id
+    username = callback_query.from_user.username
+    print(f"User ID: {user_id}, Username: {username}")
+
+    await callback_query.answer(f"User ID: {user_id}, Username: {username}. Введите /menu для доступа к меню бота")
 
 # Запуск бота
 async def main():
