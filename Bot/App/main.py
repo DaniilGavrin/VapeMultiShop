@@ -7,8 +7,6 @@ from aiogram.filters import Command
 from config import BOT_TOKEN
 from msg import msgbot
 
-
-
 # Создаем экземпляр диспетчера
 dp = Dispatcher()
 
