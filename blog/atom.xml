@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="atom.xsl"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://your-docusaurus-site.example.com/blog</id>
+    <title>VapeMultiShop документация Blog</title>
+    <updated>2024-09-05T07:49:34.000Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://your-docusaurus-site.example.com/blog"/>
+    <subtitle>VapeMultiShop документация Blog</subtitle>
+    <icon>https://your-docusaurus-site.example.com/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[Hello World!]]></title>
+        <id>https://your-docusaurus-site.example.com/blog/Hello!</id>
+        <link href="https://your-docusaurus-site.example.com/blog/Hello!"/>
+        <updated>2024-09-05T07:49:34.000Z</updated>
+        <author>
+            <name>Даниил Гаврин</name>
+            <uri>https://github.com/DaniilGavrin</uri>
+        </author>
+    </entry>
+</feed>
