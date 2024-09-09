@@ -15,7 +15,7 @@ const config: Config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'ByteWizard', // Usually your GitHub org/user name.
+  organizationName: 'DaniilGavrin', // Usually your GitHub org/user name.
   projectName: 'VapeMultiShop', // Usually your repo name.
 
   onBrokenLinks: 'ignore',
