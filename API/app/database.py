@@ -19,7 +19,6 @@ class Database:
             database=self.database
         )
         self.cursor = self.conn.cursor()
-        
         self.check_table_user(self.cursor)
 
     def check_table_user(self, cursor):
@@ -37,7 +36,9 @@ class Database:
                 ) ENGINE=InnoDB;
                 """
                 self.cursor.execute(create_table_query)
-                
+                # Отправляем изменения
+                self.conn.commit()
+
             else:
                 Database.connect()
 
@@ -47,8 +48,29 @@ class Database:
             cursor.close()
 
     def validate_auth(self, token, uid):
-        query = "SELECT * FROM users WHERE token=%s AND uid=%s"
-        self.cursor.execute(query, (token, uid))
-        user = self.cursor.fetchone()
-        return user is not None
+        try:
+            query = "SELECT * FROM user WHERE token=%s AND uid=%s"
+            self.cursor.execute(query, (token, uid))
+            user = self.cursor.fetchone()
+            return user is not None
+        except _mysql_connector.Error as e:
+            print(f"Ошибка при проверке авторизации: {e}")
+            return False
+
+    def get_products(self):
+        try:
+            query = "SELECT * FROM products"
+            self.cursor.execute(query)
+            products = self.cursor.fetchall()
+            return products
+        except _mysql_connector.Error as e:
+            print(f"Ошибка при получении продуктов: {e}")
+            return(f"Error: {e}")
+
+    def close(self):
+        if self.cursor:
+            self.cursor.close()
+        if self.conn:
+            self.conn.close()
+        print("Соединение с MySQL закрыто.")
         

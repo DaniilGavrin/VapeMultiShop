@@ -15,7 +15,12 @@ class AuthRequest(BaseModel):
 
 app = FastAPI()
 
-@app.post("/auth")
+@app.get("/")
+async def root():
+    # возвращаем 404
+    return {"message": "Not Found"}
+
+@app.get("/auth")
 async def auth(request: Request):
     """
     /auth
@@ -31,16 +36,30 @@ async def auth(request: Request):
             cart:
     """
     # Получаем данные из тела запроса и проверяем валидность
-    data = await request.json()
-    auth_data = AuthRequest(**data)
+    # Получаем данные из тела запроса
+    try:
+        data = await request.json()
+        auth_data = AuthRequest(**data)
+    except Exception as e:
+        return {"status": "error", "error": ["Invalid input data", str(e)]}
+
+    # Подключаемся к базе данных и проверяем авторизацию
+    db = database.Database(host="localhost", user="root", password="your_password", database="your_database")
+    db.connect()
     
-    # Проверяем авторизацию
-    if not database.validate_auth(auth_data.token, auth_data.uid):
+    if not db.validate_auth(auth_data.token, auth_data.uid):
+        db.close()
         return {"status": "error", "error": ["Invalid token or uid"]}
     
-    # Если авторизация прошла успешно, возвращаем корзину
-    cart = database.get_cart(auth_data.uid)
-    return {"status": "success", "cart": cart}
+    #заправшиваем товары из базы данных
+    products = db.get_products()
+    
+    # Если авторизация успешна, получаем корзину
+    cart = db.get_cart(auth_data.uid)
+
+    db.close()
+    # возвращаем ответ
+    return {"status": "success", "products": products, "cart": cart}
 
 
 if __name__ == "__main__":
