@@ -1,25 +1,48 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
+import json
+import database
+
+class AuthRequest(BaseModel):
+    token: str
+    uid: str
+    class Config:
+        schema_extra = {"example": {"token": "your_token", "uid": "your_uid"}}
+        allow_population_by_field_name = True
+
+# проверяем существование списка таблиц
+
 
 app = FastAPI()
 
-class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: bool = None
+@app.post("/auth")
+async def auth(request: Request):
+    """
+    /auth
+    args:
+        JSON:
+            token: str
+            uid: str
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+    return:
+        JSON:
+            status: str
+            error: list
+            cart:
+    """
+    # Получаем данные из тела запроса и проверяем валидность
+    data = await request.json()
+    auth_data = AuthRequest(**data)
+    
+    # Проверяем авторизацию
+    if not database.validate_auth(auth_data.token, auth_data.uid):
+        return {"status": "error", "error": ["Invalid token or uid"]}
+    
+    # Если авторизация прошла успешно, возвращаем корзину
+    cart = database.get_cart(auth_data.uid)
+    return {"status": "success", "cart": cart}
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str = None):
-    return {"item_id": item_id, "q": q}
-
-@app.post("/items/")
-def create_item(item: Item):
-    return item
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="100.66.163.103", port=8000)
