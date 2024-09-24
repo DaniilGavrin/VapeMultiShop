@@ -22,18 +22,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         data.forEach(product => {
             const productElement = document.createElement("div");
             productElement.classList.add("product-card");
-
+        
+            const buttonClass = product.наличие ? "buy-button" : "buy-button disabled"; // Определяем класс кнопки
+            const buttonDisabled = product.наличие ? "" : "disabled"; // Определяем атрибут disabled
+        
             productElement.innerHTML = `
                 <div class="product-image">
                     <img src="${product.imageUrl}" alt="${product.name}">
                 </div>
                 <h3 class="product-title">${product.name}</h3>
-                <p class="product-price">${product.price} ₽</p>
-                <p class="product-description">ID товара: ${product.id}</p>
+                <p class="product-id">ID товара: ${product.id}</p>
                 <p class="product-availability">${product.наличие ? 'В наличии' : 'Нет в наличии'}</p>
-                <button class="buy-button">Купить</button>
+                <p class="product-price">${product.price} ₽</p>
+                <button class="${buttonClass}" ${buttonDisabled}>Купить</button>
             `;
-
+        
             productsContainer.appendChild(productElement);
         });
     } catch (error) {

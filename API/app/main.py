@@ -1,9 +1,11 @@
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import json
 import database
 
+APIUrl_images = "http://127.0.0.1/images/"
 
 class AuthRequest(BaseModel):
     token: str
@@ -24,15 +26,15 @@ class Product(BaseModel):
 products = [
     {
         "id": 1,
-        "name": "Pod 2",
-        "imageUrl": "../../assets/images/vaporesso4mini.webp",
+        "name": "Vaporesso xros 4 mini",
+        "imageUrl": f"{APIUrl_images}/vaporesso4mini.webp",
         "price": 1899.00,
         "наличие": True
     },
     {
         "id": 2,
-        "name": "Pod 3",
-        "imageUrl": "../../assets/images/vaporesso4mini.webp",
+        "name": "Vaporesso xros 4",
+        "imageUrl": f"{APIUrl_images}/vaporesso4mini.webp",
         "price": 2100.00,
         "наличие": False
     }
@@ -48,6 +50,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.mount("/images", StaticFiles(directory="static/images"), name="images")
 
 @app.get("/")
 async def root():
