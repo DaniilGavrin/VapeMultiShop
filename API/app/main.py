@@ -1,7 +1,9 @@
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 import json
 import database
+
 
 class AuthRequest(BaseModel):
     token: str
@@ -10,10 +12,42 @@ class AuthRequest(BaseModel):
         schema_extra = {"example": {"token": "your_token", "uid": "your_uid"}}
         allow_population_by_field_name = True
 
-# проверяем существование списка таблиц
+# Модель для товара
+class Product(BaseModel):
+    id: int
+    name: str
+    imageUrl: str
+    price: float
+    наличие: bool
+
+# Пример данных
+products = [
+    {
+        "id": 1,
+        "name": "Pod 2",
+        "imageUrl": "../../assets/images/vaporesso4mini.webp",
+        "price": 1899.00,
+        "наличие": True
+    },
+    {
+        "id": 2,
+        "name": "Pod 3",
+        "imageUrl": "../../assets/images/vaporesso4mini.webp",
+        "price": 2100.00,
+        "наличие": False
+    }
+]
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 async def root():
@@ -61,7 +95,12 @@ async def auth(request: Request):
     # возвращаем ответ
     return {"status": "success", "products": products, "cart": cart}
 
+# Маршрут для получения списка товаров
+@app.get("/pods", response_model=list[Product])
+async def get_products():
+    return products
+
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="100.66.163.103", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
