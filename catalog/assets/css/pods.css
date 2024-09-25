@@ -1,0 +1,117 @@
+/* Стили для навигационной панели */
+body {
+    margin: 0; /* Убираем отступы у body */
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #561766; /* Фон панели */
+    height: 70px; /* Высота панели */
+    position: relative; /* Используем для позиционирования логотипа */
+    margin: 5px;
+}
+
+.logo {
+    margin-right: auto; /* Логотип будет слева */
+}
+
+.logo img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover; /* Исправляем искажение логотипа */
+    border-radius: 50%; /* Делаем логотип круглым */
+}
+
+.title {
+    color: rgb(196, 146, 146); /* Цвет текста */
+    font-size: 40px; /* Размер шрифта */
+    text-align: center; /* Центрируем текст */
+    flex-grow: 1; /* Заголовок занимает доступное пространство */
+}
+
+.categories {
+    display: flex;
+    flex-wrap: wrap; /* Позволяет карточкам переходить на новую строку */
+    justify-content: center; /* Центрируем карточки */
+    gap: 20px; /* Промежутки между карточками */
+    margin-top: 50px;
+}
+
+.category {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 200px; /* Ширина карточки */
+    height: 350px; /* Высота карточки */
+    transition: transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.category:hover {
+    transform: scale(1.05);
+}
+
+.category-image {
+    position: relative;
+    width: 100%;
+    height: 70%; /* Высота изображения в карточке */
+    border-radius: 8px;
+    overflow: hidden; /* Обрезаем переполнение */
+}
+
+.category-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Заполняем пространство, сохраняя пропорции */
+}
+
+.title {
+    margin: 10px 0; /* Отступы для заголовка */
+    font-size: 1.2rem; /* Размер шрифта заголовка */
+}
+
+.buy-button {
+    padding: 10px 20px;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.buy-button:hover {
+    background-color: #2ecc71;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .title {
+        font-size: 36px; /* Уменьшаем размер шрифта на мобильных устройствах */
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+    .category-card {
+        width: calc(33.33% - 20px); /* 3 карточки в строке */
+    }
+}
+
+@media (max-width: 900px) {
+    .category-card {
+        width: calc(50% - 20px); /* 2 карточки в строке */
+    }
+}
+
+@media (max-width: 600px) {
+    .category-card {
+        width: 100%; /* 1 карточка в строке */
+    }
+}
