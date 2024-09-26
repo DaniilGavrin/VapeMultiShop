@@ -4,8 +4,12 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import json
 import database
+import os
 
-APIUrl_images = "http://127.0.0.1/images/"
+print(os.getcwd())
+
+APIUrl_images = "http://127.0.0.1:8000/images/"
+formatimg = ".webp"
 
 class AuthRequest(BaseModel):
     token: str
@@ -22,24 +26,6 @@ class Product(BaseModel):
     price: float
     наличие: bool
 
-# Пример данных
-products = [
-    {
-        "id": 1,
-        "name": "Vaporesso xros 4 mini",
-        "imageUrl": f"{APIUrl_images}/vaporesso4mini.webp",
-        "price": 1899.00,
-        "наличие": True
-    },
-    {
-        "id": 2,
-        "name": "Vaporesso xros 4",
-        "imageUrl": f"{APIUrl_images}/vaporesso4mini.webp",
-        "price": 2100.00,
-        "наличие": False
-    }
-]
-
 
 app = FastAPI()
 
@@ -51,7 +37,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/images", StaticFiles(directory="static/images"), name="images")
+app.mount("/images", StaticFiles(directory="API/app/static/images"), name="images")
 
 @app.get("/")
 async def root():
@@ -102,7 +88,13 @@ async def auth(request: Request):
 # Маршрут для получения списка товаров
 @app.get("/pods", response_model=list[Product])
 async def get_products():
-    return products
+    db = database.DatabaseLITE("API/app/shop.db")  # Название базы данных
+    products = db.get_pods()
+    db.close()
+
+    # Преобразуем данные из базы в нужный формат
+    return [{"id": id, "name": name, "imageUrl": APIUrl_images + imageUrl + formatimg, "price": price, "наличие": наличие} 
+            for id, name, imageUrl, price, наличие in products]
 
 
 if __name__ == "__main__":
