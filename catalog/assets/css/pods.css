@@ -31,51 +31,69 @@ body {
     flex-grow: 1; /* Заголовок занимает доступное пространство */
 }
 
-.categories {
+/* Контейнер для товаров */
+.products-container {
     display: flex;
-    flex-wrap: wrap; /* Позволяет карточкам переходить на новую строку */
-    justify-content: center; /* Центрируем карточки */
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 20px; /* Промежутки между карточками */
     margin-top: 50px;
 }
 
-.category {
+/* Карточки товаров */
+.product-card {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    width: 200px; /* Ширина карточки */
-    height: 350px; /* Высота карточки */
+    width: 250px; /* Ширина карточки */
+    height: auto; /* Позволяем высоте адаптироваться под содержимое */
     transition: transform 0.2s ease;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: flex-start; /* Упорядочиваем элементы сверху вниз */
+    align-items: center; /* Центрируем элементы по горизонтали */
 }
 
-.category:hover {
+.product-card:hover {
     transform: scale(1.05);
 }
 
-.category-image {
-    position: relative;
+.product-image {
     width: 100%;
-    height: 70%; /* Высота изображения в карточке */
+    height: 200px; /* Оптимальная высота */
     border-radius: 8px;
     overflow: hidden; /* Обрезаем переполнение */
 }
 
-.category-image img {
+.product-image img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Заполняем пространство, сохраняя пропорции */
+    object-fit: contain; /* Сохраняет пропорции, не обрезая изображение */
 }
 
-.title {
+/* Стили для текста */
+.product-title {
     margin: 10px 0; /* Отступы для заголовка */
-    font-size: 1.2rem; /* Размер шрифта заголовка */
+    font-size: 1.5rem; /* Увеличиваем размер шрифта заголовка */
+    text-align: center; /* Центрируем текст */
 }
 
+.product-price {
+    font-size: 1.2rem; /* Размер шрифта для цены */
+    color: #242424; /* Цвет текста для цены */
+    text-align: center; /* Центрируем текст */
+    margin: 5px 0; /* Отступы для цены */
+}
+
+.product-id {
+    font-size: 0.9rem; /* Уменьшаем размер шрифта для ID товара */
+    color: gray; /* Цвет текста для ID товара */
+    text-align:left; /* Центрируем текст */
+    margin-top: auto; /* Отодвигаем вниз, чтобы оставить пространство для других элементов */
+}
+
+/* Кнопка покупки */
 .buy-button {
     padding: 10px 20px;
     background-color: #27ae60;
@@ -90,28 +108,27 @@ body {
     background-color: #2ecc71;
 }
 
-/* Адаптивность */
-@media (max-width: 768px) {
-    .title {
-        font-size: 36px; /* Уменьшаем размер шрифта на мобильных устройствах */
-    }
+.buy-button.disabled {
+    background-color: #ccc; /* Серый цвет для кнопки */
+    cursor: not-allowed; /* Изменяем курсор */
+    opacity: 0.6; /* Уменьшаем непрозрачность */
 }
 
 /* Адаптивность */
 @media (max-width: 1200px) {
-    .category-card {
+    .product-card {
         width: calc(33.33% - 20px); /* 3 карточки в строке */
     }
 }
 
 @media (max-width: 900px) {
-    .category-card {
+    .product-card {
         width: calc(50% - 20px); /* 2 карточки в строке */
     }
 }
 
 @media (max-width: 600px) {
-    .category-card {
+    .product-card {
         width: 100%; /* 1 карточка в строке */
     }
 }
