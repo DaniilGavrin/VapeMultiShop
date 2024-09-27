@@ -11,6 +11,7 @@ print(os.getcwd())
 APIUrl_images = "http://192.168.31.51:8000/images/"
 formatimg = ".webp"
 
+
 class AuthRequest(BaseModel):
     token: str
     uid: str
@@ -25,6 +26,11 @@ class Product(BaseModel):
     imageUrl: str
     price: float
     наличие: bool
+
+# Модель для входа
+class Login(BaseModel):
+    username: str
+    password: str
 
 
 app = FastAPI()
@@ -44,8 +50,8 @@ async def root():
     # возвращаем 404
     return {"message": "Not Found"}
 
-@app.get("/login")
-async def login(request: Request):
+@app.post("/login")
+async def login(login: Login):
     """
     /login
     args:
@@ -53,13 +59,11 @@ async def login(request: Request):
             username: str
             password: str
     """
-    # Получаем данные из тела запроса и проверяем валидность
-    # Получаем данные из тела запроса
     try:
-        data = await request.json()
-        login_data = AuthRequest(**data)
-        # Проверяем авторизацию
-
+        if database.DatabaseUSER.check_valid_login(login.username, login.password):
+            return {"status": "ok", "error": []}
+        else:
+            return {"status": "error", "error": ["Not valid password and username"]}
     except Exception as e:
         return {"status": "error", "error": ["Invalid input data", str(e)]}
 

@@ -1,6 +1,16 @@
 import quopri
 from sqlite3 import connect
 import sqlite3
+import hashlib
+
+SALT = "bB_eygUmMRpIuevFoMGU-mv_FDHhKsdM"
+
+class HashUtil:
+    @staticmethod
+    def hash_password(password: str) -> str:
+        """Хеширует пароль с солью"""
+        salted_password = password + SALT
+        return hashlib.sha512(salted_password.encode()).hexdigest()
         
 class DatabaseLITE:
     def __init__(self, db_file):
@@ -42,7 +52,7 @@ class DatabaseUSER:
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 uid INTEGER PRIMARY KEY,
-                user_id TEXT NOT NULL UNIQUE,
+                user_id TEXT UNIQUE,
                 username TEXT NOT NULL UNIQUE,
                 email TEXT NOT NULL UNIQUE,
                 password_hash TEXT NOT NULL,
@@ -98,6 +108,23 @@ class DatabaseUSER:
         ''')
 
         self.connection.commit()
+
+    def check_valid_login(self, username: str, password: str) -> bool:
+        """Проверяет валидность логина и пароля"""
+        self.cursor.execute("SELECT password_hash FROM users WHERE username = ?", (username,))
+        user = self.cursor.fetchone()
+
+        if not user:
+            self.close()
+            return False
+
+        # Повторно хешируем полученный хэш пароля с солью и сравниваем с хэшем в базе данных
+        hashed_input_password = HashUtil.hash_password(password)
+        if user[0] == hashed_input_password:
+            self.close()
+            return True
+        self.close()
+        return False
 
     def add_to_cart(self, uid, product_id, quantity, price):
         self.cursor.execute("SELECT cart_id FROM cart WHERE uid = ?", (uid,))
