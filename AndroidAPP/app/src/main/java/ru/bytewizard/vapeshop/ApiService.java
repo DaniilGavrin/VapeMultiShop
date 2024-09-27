@@ -19,7 +19,7 @@ import okhttp3.MediaType;
 
 public class ApiService {
 
-    private static final String API_URL = "http://192.168.31.51";
+    private static final String API_URL = "http://192.168.31.51:8000";
     private static final Handler handler = new Handler(Looper.getMainLooper());
 
     public static void login(Context context, String username, String password) {

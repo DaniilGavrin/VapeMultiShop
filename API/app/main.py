@@ -8,7 +8,7 @@ import os
 
 print(os.getcwd())
 
-APIUrl_images = "http://127.0.0.1:8000/images/"
+APIUrl_images = "http://192.168.31.51:8000/images/"
 formatimg = ".webp"
 
 class AuthRequest(BaseModel):
@@ -43,6 +43,16 @@ app.mount("/images", StaticFiles(directory="API/app/static/images"), name="image
 async def root():
     # возвращаем 404
     return {"message": "Not Found"}
+
+@app.get("/login")
+async def login(request: Request):
+    """
+    /login
+    args:
+        JSON:
+            username: str
+            password: str
+    """
 
 @app.get("/auth")
 async def auth(request: Request):
@@ -99,4 +109,4 @@ async def get_products():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="192.168.31.51", port=8000)
