@@ -1,2 +1,15 @@
-package ru.bytewizard.vapeshop;public class HomeActivity {
+package ru.bytewizard.vapeshop;
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class HomeActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
+
+        // TODO: Логика для главного окна
+    }
 }
