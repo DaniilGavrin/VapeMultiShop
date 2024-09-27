@@ -53,6 +53,15 @@ async def login(request: Request):
             username: str
             password: str
     """
+    # Получаем данные из тела запроса и проверяем валидность
+    # Получаем данные из тела запроса
+    try:
+        data = await request.json()
+        login_data = AuthRequest(**data)
+        # Проверяем авторизацию
+
+    except Exception as e:
+        return {"status": "error", "error": ["Invalid input data", str(e)]}
 
 @app.get("/auth")
 async def auth(request: Request):
@@ -99,7 +108,8 @@ async def auth(request: Request):
 @app.get("/pods", response_model=list[Product])
 async def get_products():
     db = database.DatabaseLITE("API/app/shop.db")  # Название базы данных
-    products = db.get_pods()
+    # TODO: изменить работу базы данных на категории а не на просто запрос в pods
+    products = db.get_products()
     db.close()
 
     # Преобразуем данные из базы в нужный формат

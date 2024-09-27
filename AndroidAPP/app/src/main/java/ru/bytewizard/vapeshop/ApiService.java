@@ -30,7 +30,7 @@ public class ApiService {
                 .readTimeout(30, TimeUnit.SECONDS)
                 .build();
 
-        String url = API_URL + "/auth";
+        String url = API_URL + "/login";
 
         RequestBody body = RequestBody.create(
                 MediaType.parse("application/json"),
