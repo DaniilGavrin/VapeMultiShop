@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeUnit;
-
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -17,8 +16,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.MediaType;
-import android.content.Context;
 import android.content.SharedPreferences;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ApiService {
@@ -35,25 +34,20 @@ public class ApiService {
             JSONObject jsonObject = new JSONObject(userData);
 
             // Извлекаем данные пользователя из JSON
-            String username = jsonObject.getString("username");
-            String email = jsonObject.getString("email");
-            String token = jsonObject.getString("token");
-            String userId = jsonObject.getString("user_id");  // Пример дополнительных данных
-            String cartId = jsonObject.optString("cart_id", null);  // Если может быть null
+            editor.putString("username", jsonObject.getString("username"));
+            editor.putString("email", jsonObject.getString("email"));
+            editor.putString("token", jsonObject.getString("token"));
+            editor.putString("user_id", jsonObject.getString("user_id"));
+            editor.putString("cart_id", jsonObject.optString("cart_id", null)); // Если может быть null
 
-            // Сохраняем данные в SharedPreferences
-            editor.putString("username", username);
-            editor.putString("email", email);
-            editor.putString("token", token);
-            editor.putString("user_id", userId);
-            editor.putString("cart_id", cartId); // Сохранение, если поле присутствует
-            editor.apply();  // Применяем изменения
+            // Применяем изменения
+            editor.apply();
 
-        } catch (Exception e) {
+        } catch (JSONException e) {
             e.printStackTrace();
-            showError(context, "Ошибка при сохранении данных пользователя.");
-            }
+            showError(context, "Ошибка при парсинге данных пользователя.");
         }
+    }
 
     public static void login(Context context, String username, String password) {
         String hashedPassword = hashPassword(password);
@@ -86,11 +80,8 @@ public class ApiService {
                 if (!response.isSuccessful()) {
                     showError(context, "Ошибка авторизации: " + response.message());
                 } else {
-                    // Пример парсинга ответа от API
                     String userData = response.body().string(); // Ответ в формате JSON
-
-                    // Сохранение информации о пользователе в SharedPreferences
-                    saveUserData(context, userData);
+                    saveUserData(context, userData); // Сохранение информации о пользователе в SharedPreferences
 
                     // Перенаправление на другое Activity после успешной авторизации
                     Intent intent = new Intent(context, HomeActivity.class);
