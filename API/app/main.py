@@ -26,6 +26,7 @@ class Product(BaseModel):
     imageUrl: str
     price: float
     наличие: bool
+    categories: str
 
 # Модель для входа
 class Login(BaseModel):
@@ -80,7 +81,7 @@ async def get_products():
     db.close()
 
     # Преобразуем данные из базы в нужный формат
-    return [{"id": id, "name": name, "imageUrl": APIUrl_images + imageUrl + formatimg, "price": price, "наличие": наличие} 
+    return [{"id": id, "name": name, "imageUrl": APIUrl_images + imageUrl + formatimg, "price": price, "наличие": наличие}
             for id, name, imageUrl, price, наличие in products]
 
 @app.post("/register")

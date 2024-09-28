@@ -1,6 +1,7 @@
 package ru.bytewizard.vapeshop;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
@@ -8,7 +9,6 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeUnit;
-
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -16,11 +16,38 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.MediaType;
+import android.content.SharedPreferences;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class ApiService {
 
     private static final String API_URL = "http://192.168.31.51:8000";
     private static final Handler handler = new Handler(Looper.getMainLooper());
+
+    private static void saveUserData(Context context, String userData) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        try {
+            // Парсинг JSON-ответа
+            JSONObject jsonObject = new JSONObject(userData);
+
+            // Извлекаем данные пользователя из JSON
+            editor.putString("username", jsonObject.getString("username"));
+            editor.putString("email", jsonObject.getString("email"));
+            editor.putString("token", jsonObject.getString("token"));
+            editor.putString("user_id", jsonObject.getString("user_id"));
+            editor.putString("cart_id", jsonObject.optString("cart_id", null)); // Если может быть null
+
+            // Применяем изменения
+            editor.apply();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            showError(context, "Ошибка при парсинге данных пользователя.");
+        }
+    }
 
     public static void login(Context context, String username, String password) {
         String hashedPassword = hashPassword(password);
@@ -53,7 +80,12 @@ public class ApiService {
                 if (!response.isSuccessful()) {
                     showError(context, "Ошибка авторизации: " + response.message());
                 } else {
-                    // Здесь можно обработать успешный ответ от API
+                    String userData = response.body().string(); // Ответ в формате JSON
+                    saveUserData(context, userData); // Сохранение информации о пользователе в SharedPreferences
+
+                    // Перенаправление на другое Activity после успешной авторизации
+                    Intent intent = new Intent(context, HomeActivity.class);
+                    context.startActivity(intent);
                 }
             }
         });
