@@ -12,8 +12,11 @@ class HashUtil:
         salted_password = password + SALT
         return hashlib.sha512(salted_password.encode()).hexdigest()
     
-    def token_generator(user, mail) -> str:
-        pass
+    @staticmethod
+    def token_generator(user: str, mail: str) -> str:
+        """Простая генерация токена на основе username и email"""
+        data = user + mail + SALT
+        return hashlib.sha256(data.encode()).hexdigest()
         
 class DatabaseLITE:
     def __init__(self, db_file):
@@ -40,6 +43,12 @@ class DatabaseUSER:
         self.cursor = self.connection.cursor()
         self.create_tables_user()
 
+    # Проверка, существует ли пользователь с таким username или email
+    def user_exists(self, username: str, email: str) -> bool:
+        self.cursor.execute("SELECT * FROM users WHERE username = ? OR email = ?", (username, email))
+        user = self.cursor.fetchone()
+        return user is not None
+
     def create_tables_user(self):
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS products (
@@ -63,7 +72,7 @@ class DatabaseUSER:
                 order_id TEXT UNIQUE,
                 cart_id TEXT UNIQUE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
 
@@ -72,7 +81,7 @@ class DatabaseUSER:
                 cart_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 uid INTEGER NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (uid) REFERENCES users(uid)
             )
         ''')
@@ -112,8 +121,19 @@ class DatabaseUSER:
 
         self.connection.commit()
 
-    def register_user():
-        pass
+    def register_user(self, username: str, email: str, password_hash: str, token: str):
+        try:
+            self.cursor.execute('''
+                INSERT INTO users (username, email, password_hash, token) 
+                VALUES (?, ?, ?, ?)
+            ''', (username, email, password_hash, token))
+            self.connection.commit()
+        except sqlite3.IntegrityError as e:
+            # Если возникает ошибка целостности данных (например, дублирование email или username)
+            raise Exception(f"Ошибка целостности данных: {e}")
+        except Exception as e:
+            # Любые другие ошибки
+            raise Exception(f"Ошибка при вставке данных: {e}")
 
     def check_valid_login(self, username: str, password: str) -> bool:
         """Проверяет валидность логина и пароля"""

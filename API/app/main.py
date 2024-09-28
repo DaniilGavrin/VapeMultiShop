@@ -55,8 +55,20 @@ async def root():
     # возвращаем 404
     return {"message": "Not Found"}
 
+# Маршрут для получения списка товаров
+@app.get("/pods", response_model=list[Product])
+async def get_products():
+    db = database.DatabaseUSER("API/app/shop.db")  # Название базы данных
+    # TODO: изменить работу базы данных на категории а не на просто запрос в pods
+    products = db.get_pods()
+    db.close()
+
+    # Преобразуем данные из базы в нужный формат
+    return [{"id": id, "name": name, "imageUrl": APIUrl_images + imageUrl + formatimg, "price": price, "наличие": наличие}
+            for id, name, imageUrl, price, наличие in products]
+
 @app.post("/login")
-async def login(login: Login):
+async def logins(login: Login):
     """
     /login
     args:
@@ -64,34 +76,46 @@ async def login(login: Login):
             username: str
             password: str
     """
+    db_user = database.DatabaseUSER("API/app/shop.db")
+    username = login.username
+    password = login.password
     try:
-        if database.DatabaseUSER.check_valid_login(login.username, login.password):
+        if db_user.check_valid_login(username, password):
             return {"status": "ok", "error": []}
         else:
             return {"status": "error", "error": ["Not valid password and username"]}
     except Exception as e:
         return {"status": "error", "error": ["Invalid input data", str(e)]}
 
-# Маршрут для получения списка товаров
-@app.get("/pods", response_model=list[Product])
-async def get_products():
-    db = database.DatabaseLITE("API/app/shop.db")  # Название базы данных
-    # TODO: изменить работу базы данных на категории а не на просто запрос в pods
-    products = db.get_products()
-    db.close()
-
-    # Преобразуем данные из базы в нужный формат
-    return [{"id": id, "name": name, "imageUrl": APIUrl_images + imageUrl + formatimg, "price": price, "наличие": наличие}
-            for id, name, imageUrl, price, наличие in products]
-
 @app.post("/register")
 async def register(register: Register):
     user = register.username
     mail = register.email
     password = register.password_hash
+
+    # Создание экземпляра базы данных
+    db = database.DatabaseUSER("API/app/shop.db")
+
+    # Проверка на существование пользователя
+    if db.user_exists(register.username, register.email):
+        return {"status": "error", "error": ["Пользователь с таким именем или почтой уже существует"]}
+    
     hash_password = database.HashUtil.hash_password(password)
+
     token = database.HashUtil.token_generator(user, mail)
+
+    # Регистрация пользователя
+    try:
+        db.register_user(register.username, register.email, hash_password, token)
+        return {"status": "ok", "message": "Регистрация успешна", "token": token}
+    except Exception as e:
+        return {"status": "error", "error": ["Ошибка при регистрации", str(e)]}
+    finally:
+        db.close()
+
+
 
 if __name__ == "__main__":
     import uvicorn
+    database.DatabaseUSER("API/app/shop.db")
     uvicorn.run(app, host="192.168.31.51", port=8000)
