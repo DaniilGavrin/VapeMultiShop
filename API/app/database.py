@@ -11,6 +11,9 @@ class HashUtil:
         """Хеширует пароль с солью"""
         salted_password = password + SALT
         return hashlib.sha512(salted_password.encode()).hexdigest()
+    
+    def token_generator(user, mail) -> str:
+        pass
         
 class DatabaseLITE:
     def __init__(self, db_file):
@@ -108,6 +111,9 @@ class DatabaseUSER:
         ''')
 
         self.connection.commit()
+
+    def register_user():
+        pass
 
     def check_valid_login(self, username: str, password: str) -> bool:
         """Проверяет валидность логина и пароля"""
