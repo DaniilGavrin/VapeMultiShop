@@ -93,6 +93,8 @@ async def register(register: Register):
     mail = register.email
     password = register.password_hash
 
+    print(user, mail, password)
+
     # Создание экземпляра базы данных
     db = database.DatabaseUSER("API/app/shop.db")
 

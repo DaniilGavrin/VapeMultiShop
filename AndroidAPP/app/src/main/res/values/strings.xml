@@ -44,4 +44,9 @@
     </string>
     <string name="login">Авторизоваться</string>
     <string name="register">Регистрация</string>
+    <string name="registeruser">Зарегистрироваться</string>
+    <string name="email">Email</string>
+    <string name="name_user">Имя пользователя</string>
+    <string name="pass">Пароль</string>
+    <string name="repass">Повторите пароль</string>
 </resources>

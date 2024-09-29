@@ -37,7 +37,7 @@ public class ApiService {
             editor.putString("username", jsonObject.getString("username"));
             editor.putString("email", jsonObject.getString("email"));
             editor.putString("token", jsonObject.getString("token"));
-            editor.putString("user_id", jsonObject.getString("user_id"));
+            editor.putString("user_id", jsonObject.optString("user_id", null));
             editor.putString("cart_id", jsonObject.optString("cart_id", null)); // Если может быть null
 
             // Применяем изменения
@@ -47,6 +47,65 @@ public class ApiService {
             e.printStackTrace();
             showError(context, "Ошибка при парсинге данных пользователя.");
         }
+    }
+
+    public static void register(Context context, String username, String password, String email) {
+        String hashedPassword = hashPassword(password);
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .build();
+
+        String url = API_URL + "/register";  // Проверьте правильность URL
+
+        // Формируем тело запроса
+        JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("username", username);
+            jsonBody.put("password_hash", hashedPassword);
+            jsonBody.put("email", email);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestBody body = RequestBody.create(
+                MediaType.parse("application/json"),
+                jsonBody.toString()  // Преобразуем JSON в строку
+        );
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+
+        // Логирование отправляемых данных
+        System.out.println("Register Request JSON: " + jsonBody.toString());
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                showError(context, "Ошибка подключения к API: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    String errorResponse = response.body().string();
+                    showError(context, "Ошибка регистрации: " + errorResponse);
+
+                    // Логирование ответа сервера
+                    System.out.println("Register Response Error: " + errorResponse);
+                } else {
+                    String userData = response.body().string(); // Ответ в формате JSON
+                    saveUserData(context, userData); // Сохранение информации о пользователе в SharedPreferences
+
+                    // Перенаправление на другое Activity после успешной регистрации
+                    Intent intent = new Intent(context, HomeActivity.class);
+                    context.startActivity(intent);
+                }
+            }
+        });
     }
 
     public static void login(Context context, String username, String password) {
@@ -84,7 +143,7 @@ public class ApiService {
                     saveUserData(context, userData); // Сохранение информации о пользователе в SharedPreferences
 
                     // Перенаправление на другое Activity после успешной авторизации
-                    Intent intent = new Intent(context, HomeActivity.class);
+                    Intent intent = new Intent(context, MainActivity.class);
                     context.startActivity(intent);
                 }
             }
