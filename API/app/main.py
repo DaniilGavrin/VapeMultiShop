@@ -11,6 +11,9 @@ print(os.getcwd())
 APIUrl_images = "http://192.168.31.51:8000/images/"
 formatimg = ".webp"
 
+class AuthFold(BaseModel):
+    username: str
+    token: str
 
 class AuthRequest(BaseModel):
     token: str
@@ -115,6 +118,23 @@ async def register(register: Register):
     finally:
         db.close()
 
+@app.post("authfold")
+async def authfold(auth: AuthFold):
+    username = auth.username
+    token = auth.token
+    db = database.DatabaseUSER("API/app/shop.db")
+    crypt = database.HashUtil.token_check_fold(token)
+
+    # Проверка администратора
+    try:
+        if db.check_admin(username, crypt):
+            return {"status": "ok", "message": "Авторизация успешна"}
+        else:
+            return {"status": "error", "message": "Пользователь не является администратором или неверный токен"}
+    except Exception as e:
+        return {"status": "error", "message": "Ошибка проверки администратора", "details": str(e)}
+    finally:
+        db.close()
 
 
 if __name__ == "__main__":

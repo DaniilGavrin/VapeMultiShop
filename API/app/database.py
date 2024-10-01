@@ -4,6 +4,7 @@ import sqlite3
 import hashlib
 
 SALT = "bB_eygUmMRpIuevFoMGU-mv_FDHhKsdM"
+RESALT = "pJ8nD3x$Z1wF4*B2vL^u!T7oM5t@HqN?A6R%X#Kp9eV&cY-fJm7z1qG^d2x$!Wo"
 
 class HashUtil:
     @staticmethod
@@ -17,6 +18,11 @@ class HashUtil:
         """Простая генерация токена на основе username и email"""
         data = user + mail + SALT
         return hashlib.sha256(data.encode()).hexdigest()
+    
+    @staticmethod
+    def token_check_fold(token):
+        salted_token = token + RESALT
+        return hashlib.sha512(salted_token.encode()).hexdigest()
         
 class DatabaseLITE:
     def __init__(self, db_file):
@@ -119,6 +125,14 @@ class DatabaseUSER:
             )
         ''')
 
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS admins (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL,
+                token TEXT NOT NULL
+            )
+        ''')
+
         self.connection.commit()
 
     def register_user(self, username: str, email: str, password_hash: str, token: str):
@@ -209,6 +223,27 @@ class DatabaseUSER:
 
         self.cursor.execute("DELETE FROM cart_items WHERE cart_id = ?", (cart_id,))
         self.connection.commit()
+
+    def check_admin(self, username, crypt):
+        try:
+            # Выполнение SQL-запроса для проверки токена администратора
+            self.cursor.execute("""
+                SELECT token FROM admins WHERE username = ?
+            """, (username,))
+            
+            result = self.cursor.fetchone()
+            
+            if result is None:
+                # Администратор не найден
+                return False
+            
+            # Сравнение токенов (зашифрованный токен с тем, что в базе данных)
+            stored_token = result[0]
+            return stored_token == crypt
+
+        except Exception as e:
+            print(f"Ошибка проверки администратора: {str(e)}")
+            return False
 
     def clear_cart(self, uid):
         self.cursor.execute("SELECT cart_id FROM cart WHERE uid = ?", (uid,))
