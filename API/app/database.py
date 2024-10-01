@@ -224,6 +224,14 @@ class DatabaseUSER:
         self.cursor.execute("DELETE FROM cart_items WHERE cart_id = ?", (cart_id,))
         self.connection.commit()
 
+    def get_data(self, username):
+        try:
+            self.cursor.execute("SELECT * FROM users WHERE username =?", (username,))
+            return self.cursor.fetchone()
+        except Exception as e:
+            print(f"Ошибка получения данных пользователя: {str(e)}")
+            return None
+
     def check_admin(self, username, crypt):
         try:
             # Выполнение SQL-запроса для проверки токена администратора

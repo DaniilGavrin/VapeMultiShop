@@ -15,6 +15,9 @@ class AuthFold(BaseModel):
     username: str
     token: str
 
+class testdata(BaseModel):
+    username: str
+
 class AuthRequest(BaseModel):
     token: str
     uid: str
@@ -84,7 +87,23 @@ async def logins(login: Login):
     password = login.password
     try:
         if db_user.check_valid_login(username, password):
-            return {"status": "ok", "error": []}
+            db_user = database.DatabaseUSER("API/app/shop.db")
+            user_data = db_user.get_data(username)
+            # Формируем ответ с учетом возможных null значений
+            response = {
+                "status": "ok",
+                "data": {
+                    "id": user_data[0],
+                    "user_id": user_data[1],
+                    "username": user_data[2],
+                    "email": user_data[3],
+                    "token": user_data[5],
+                    "user_id": user_data[6],  # Включаем даже если None
+                    "cart_id": user_data[7]  # Включаем даже если None
+                }
+            }
+            print(response)
+            return response
         else:
             return {"status": "error", "error": ["Not valid password and username"]}
     except Exception as e:
@@ -112,7 +131,23 @@ async def register(register: Register):
     # Регистрация пользователя
     try:
         db.register_user(register.username, register.email, hash_password, token)
-        return {"status": "ok", "message": "Регистрация успешна", "token": token}
+        # Получаем данные пользователя из базы
+        user_data = db.get_data(user)
+        # Формируем ответ с учетом возможных null значений
+        response = {
+            "status": "ok",
+            "data": {
+                "id": user_data[0],
+                "user_id": user_data[1],
+                "username": user_data[2],
+                "email": user_data[3],
+                "token": user_data[5],
+                "user_id": user_data[6],  # Включаем даже если None
+                "cart_id": user_data[7]  # Включаем даже если None
+            }
+        }
+        print(response)
+        return response
     except Exception as e:
         return {"status": "error", "error": ["Ошибка при регистрации", str(e)]}
     finally:

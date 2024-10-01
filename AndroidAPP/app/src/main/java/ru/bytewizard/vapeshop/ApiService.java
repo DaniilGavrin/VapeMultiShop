@@ -32,13 +32,15 @@ public class ApiService {
         try {
             // Парсинг JSON-ответа
             JSONObject jsonObject = new JSONObject(userData);
+            JSONObject dataObject = jsonObject.getJSONObject("data");
 
             // Извлекаем данные пользователя из JSON
-            editor.putString("username", jsonObject.getString("username"));
-            editor.putString("email", jsonObject.getString("email"));
-            editor.putString("token", jsonObject.getString("token"));
-            editor.putString("user_id", jsonObject.optString("user_id", null));
-            editor.putString("cart_id", jsonObject.optString("cart_id", null)); // Если может быть null
+            editor.putInt("id", dataObject.getInt("id")); // id скорее всего число
+            editor.putString("user_id", dataObject.optString("user_id", null)); // Может быть null
+            editor.putString("username", dataObject.getString("username"));
+            editor.putString("email", dataObject.getString("email"));
+            editor.putString("token", dataObject.getString("token"));
+            editor.putString("cart_id", dataObject.optString("cart_id", null)); // Может быть null
 
             // Применяем изменения
             editor.apply();
@@ -143,7 +145,7 @@ public class ApiService {
                     saveUserData(context, userData); // Сохранение информации о пользователе в SharedPreferences
 
                     // Перенаправление на другое Activity после успешной авторизации
-                    Intent intent = new Intent(context, MainActivity.class);
+                    Intent intent = new Intent(context, HomeActivity.class);
                     context.startActivity(intent);
                 }
             }
