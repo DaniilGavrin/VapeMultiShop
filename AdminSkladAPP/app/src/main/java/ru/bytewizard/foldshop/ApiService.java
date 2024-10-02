@@ -67,7 +67,17 @@ public class ApiService {
                         // Обработка успешного ответа
                         mainActivity.runOnUiThread(() -> {
                             Toast.makeText(mainActivity, "Успешная авторизация", Toast.LENGTH_SHORT).show();
-                            // Перейти в другую активность или сохранить токен
+                            // Сохраняем токен который изначально писал пользователь(String token) и переходим на новое окно
+                            // Сохраняем токен
+                            SharedPreferences sharedPreferences = mainActivity.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("token", token);  // Сохраняем первоначальный токен
+                            editor.apply();
+
+                            // Переходим к новому Activity
+                            Intent intent = new Intent(mainActivity, BaseActivity.class);
+                            mainActivity.startActivity(intent);
+
                         });
                     });
                 } else {
